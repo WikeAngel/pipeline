@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+    
+    environment {
+        GIT_REPO        = 'https://github.com/tu-org/mulesoft-project.git'
+        GIT_CREDENTIALS = 'github-credentials-id'
+        MVN_SETTINGS    = 'maven-settings-id'
+        ANYPOINT_CLIENT_ID  = credentials('anypoint-client-id')
+        ANYPOINT_CLIENT_SECRET = credentials('anypoint-client-secret')
+        CLOUDHUB_ENV    = 'Sandbox'
+    }
+    
+    tools {
+        maven 'MavenMule'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: env.GIT_REPO
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -s settings.xml'
+            }
+        }
+        
+        stage('Deploy to CloudHub') {
+            steps {
+                sh '''
+                mvn deploy \
+                    -Danypoint.client_id=$ANYPOINT_CLIENT_ID \
+                    -Danypoint.client_secret=$ANYPOINT_CLIENT_SECRET \
+                    -Denv=$CLOUDHUB_ENV \
+                    -s settings.xml
+                '''
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Despliegue exitoso en CloudHub!'
+        }
+        failure {
+            echo 'El despliegue ha fallado. Revisar logs.'
+        }
+    }
+}
