@@ -2,12 +2,12 @@ pipeline {
     agent any
     
     environment {
-        GIT_REPO        = 'https://github.com/tu-org/mulesoft-project.git'
+        /*GIT_REPO        = 'https://github.com/tu-org/mulesoft-project.git'
         GIT_CREDENTIALS = credentials('')
-        //MVN_SETTINGS    = 'maven-settings-id'
+        MVN_SETTINGS    = 'maven-settings-id'
         ANYPOINT_CLIENT_ID  = credentials('anypoint-client-id')
         ANYPOINT_CLIENT_SECRET = credentials('anypoint-client-secret')
-        CLOUDHUB_ENV    = 'Sandbox'
+        CLOUDHUB_ENV    = 'Sandbox'*/ 
         environment = "Sandbox"
         businessGroupId = "99aa1b08-f16d-4bc1-9079-7a06614591bf"
         target = "Cloudhub-US-East-2"
@@ -60,7 +60,7 @@ pipeline {
                     sh 'mvn clean deploy -s ${MVN_SETTINGS}'
                 }*/
                 
-                sh "mvn clean deploy -DmuleDeploy -Denvironment=${env.environment} -DskipTest -DbusinessGroupId=${env.businessGroupId} -Dtarget=${env.target} -Dmule.env=${env.mule_env}  -Dreplicas=${env.replicas} -DvCores=${env.vCores} -Ddeploy.name=${env.deploy_name}'  // Script de despliegue (ajústalo según tu caso)
+                sh "mvn clean deploy -DmuleDeploy -Denvironment=${env.environment} -DskipTest -DbusinessGroupId=${env.businessGroupId} -Dtarget=${env.target} -Dmule.env=${env.mule_env}  -Dreplicas=${env.replicas} -DvCores=${env.vCores} -Ddeploy.name=${env.deploy_name}'
             }
         }
     }
