@@ -49,6 +49,7 @@ pipeline {
         
         stage('Deploy to CloudHub') {
             steps {
+                sh 'mvn clean deploy -DmuleDeploy -Denvironment=${env.environment} -DskipTest -DbusinessGroupId=${env.businessGroupId} -Dtarget=${env.target} -Dmule.env=${env.mule_env}  -Dreplicas=${env.replicas} -DvCores=${env.vCores} -Ddeploy.name=${env.deploy_name}'
                 /*sh '''
                 mvn deploy \
                     -Danypoint.client_id=$ANYPOINT_CLIENT_ID \
@@ -59,8 +60,6 @@ pipeline {
                 withCredentials([file(credentialsId: 'maven-settings-file', variable: 'MVN_SETTINGS')]) {
                     sh 'mvn clean deploy -s ${MVN_SETTINGS}'
                 }*/
-                
-                sh "mvn clean deploy -DmuleDeploy -Denvironment=${env.environment} -DskipTest -DbusinessGroupId=${env.businessGroupId} -Dtarget=${env.target} -Dmule.env=${env.mule_env}  -Dreplicas=${env.replicas} -DvCores=${env.vCores} -Ddeploy.name=${env.deploy_name}'
             }
         }
     }
