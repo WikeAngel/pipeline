@@ -8,13 +8,13 @@ pipeline {
         ANYPOINT_CLIENT_ID  = credentials('anypoint-client-id')
         ANYPOINT_CLIENT_SECRET = credentials('anypoint-client-secret')
         CLOUDHUB_ENV    = 'Sandbox'*/ 
-        environment = "Sandbox"
+        environment = 'Sandbox'
         businessGroupId = "99aa1b08-f16d-4bc1-9079-7a06614591bf"
-        target = "Cloudhub-US-East-2"
-        mule_env = "dev"
-        replicas = "1"
-        vCores = "0.1"
-        deploy_name = "starwars-jesus"
+        target = 'Cloudhub-US-East-2'
+        mule_env = 'dev'
+        replicas = '1'
+        vCores = '0.1'
+        deploy_name = 'starwars-mike'
     }
     
     tools {
