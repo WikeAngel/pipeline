@@ -4,7 +4,7 @@ pipeline {
     environment {
         GIT_REPO        = 'https://github.com/tu-org/mulesoft-project.git'
         GIT_CREDENTIALS = 'github-credentials-id'
-        MVN_SETTINGS    = 'maven-settings-id'
+        //MVN_SETTINGS    = 'maven-settings-id'
         ANYPOINT_CLIENT_ID  = credentials('anypoint-client-id')
         ANYPOINT_CLIENT_SECRET = credentials('anypoint-client-secret')
         CLOUDHUB_ENV    = 'Sandbox'
@@ -23,29 +23,41 @@ pipeline {
         
         stage('Build') {
             steps {
-                sh 'mvn clean package -s settings.xml'
+                sh 'mvn clean package -s $MVN_SETTINGS'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'  // Ejecuta pruebas
             }
         }
         
         stage('Deploy to CloudHub') {
             steps {
-                sh '''
+                /*sh '''
                 mvn deploy \
                     -Danypoint.client_id=$ANYPOINT_CLIENT_ID \
                     -Danypoint.client_secret=$ANYPOINT_CLIENT_SECRET \
                     -Denv=$CLOUDHUB_ENV \
                     -s settings.xml
-                '''
+                '''*/
+                withCredentials([file(credentialsId: 'maven-settings-file', variable: 'MVN_SETTINGS')]) {
+                    sh 'mvn clean deploy -s $MVN_SETTINGS'
+                }
             }
         }
     }
     
     post {
+        always {
+            echo 'Pipeline finalizada'
+        }
         success {
-            echo 'Despliegue exitoso en CloudHub!'
+            echo 'Build exitosa'
         }
         failure {
-            echo 'El despliegue ha fallado. Revisar logs.'
+            echo 'Build fallida'
         }
     }
 }
