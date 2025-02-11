@@ -3,11 +3,18 @@ pipeline {
     
     environment {
         GIT_REPO        = 'https://github.com/tu-org/mulesoft-project.git'
-        GIT_CREDENTIALS = 'github-credentials-id'
+        GIT_CREDENTIALS = credentials('')
         //MVN_SETTINGS    = 'maven-settings-id'
         ANYPOINT_CLIENT_ID  = credentials('anypoint-client-id')
         ANYPOINT_CLIENT_SECRET = credentials('anypoint-client-secret')
         CLOUDHUB_ENV    = 'Sandbox'
+        environment = "Sandbox"
+        businessGroupId = "99aa1b08-f16d-4bc1-9079-7a06614591bf"
+        target = "Cloudhub-US-East-2"
+        mule_env = "dev"
+        replicas = "1"
+        vCores = "0.1"
+        deploy_name = "starwars-jesus"
     }
     
     tools {
@@ -15,21 +22,28 @@ pipeline {
     }
     
     stages {
-        stage('Checkout') {
+        /*stage('Checkout') {
             steps {
-                git branch: 'main', credentialsId: env.GIT_CREDENTIALS, url: env.GIT_REPO
+                git branch: 'main', credentialsId: ${env.GIT_CREDENTIALS}, url: env.GIT_REPO
             }
-        }
+        }*/
         
         stage('Build') {
             steps {
-                sh 'mvn clean package -s $MVN_SETTINGS'
+                withCredentials([file(credentialsId: 'maven-settings-file', variable: 'MVN_SETTINGS')]) {
+                    sh 'mvn clean package -s ${MVN_SETTINGS}'
+                }
             }
         }
 
         stage('Test') {
             steps {
                 sh 'mvn test'  // Ejecuta pruebas
+            }
+        }
+        stage("Publish Asset") {
+            steps {
+                sh 'mvn clean deploy -DbusinessGroupId=${env.businessGroupId} -Dmule.env=${env.mule_env} -DskipTest -Denvironment=${env.environment}' // Ejecuta Maven (ajusta según tu proyecto)
             }
         }
         
@@ -41,10 +55,12 @@ pipeline {
                     -Danypoint.client_secret=$ANYPOINT_CLIENT_SECRET \
                     -Denv=$CLOUDHUB_ENV \
                     -s settings.xml
-                '''*/
+                '''
                 withCredentials([file(credentialsId: 'maven-settings-file', variable: 'MVN_SETTINGS')]) {
-                    sh 'mvn clean deploy -s $MVN_SETTINGS'
-                }
+                    sh 'mvn clean deploy -s ${MVN_SETTINGS}'
+                }*/
+                
+                sh "mvn clean deploy -DmuleDeploy -Denvironment=${env.environment} -DskipTest -DbusinessGroupId=${env.businessGroupId} -Dtarget=${env.target} -Dmule.env=${env.mule_env}  -Dreplicas=${env.replicas} -DvCores=${env.vCores} -Ddeploy.name=${env.deploy_name}'  // Script de despliegue (ajústalo según tu caso)
             }
         }
     }
